@@ -1,0 +1,1 @@
+- [test-spec.md 作成記録](project_test_spec.md) — 2026-05-07 作成。119件のテストケースをカバー。AUTH/ORG/INV/PAGE/BLK/DIAG/OPT/ANN/NOTIF/FOLDER/E2E の11カテゴリ
