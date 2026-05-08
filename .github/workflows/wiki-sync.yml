@@ -1,0 +1,63 @@
+# このワークフローは doc/ ディレクトリの内容を GitHub Wiki へ自動同期します。
+#
+# 動作概要:
+#   - main ブランチへのプッシュで doc/ 配下のファイルが変更された場合に自動実行
+#   - workflow_dispatch で手動実行も可能
+#   - doc/ の内容を Wiki リポジトリへコピーし、差分があればコミット・プッシュ
+#
+# 前提条件（重要）:
+#   このワークフローを初めて実行する前に、GitHub Wiki を手動で初期化してください。
+#   未初期化の状態では Wiki リポジトリが存在せず、Checkout ステップが失敗します。
+#   初期化手順: リポジトリの「Wiki」タブ → 「Create the first page」をクリック
+#
+# 補足:
+#   GitHub Wiki のデフォルトブランチは master です（リポジトリ本体とは独立）。
+
+name: Sync doc/ to GitHub Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'doc/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+
+      - name: Checkout Wiki repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki_temp
+
+      - name: Sync files and Push
+        run: |
+          # 既存の Wiki ファイルをクリア（.git は残す）
+          # -mindepth 1 で wiki_temp 自体を削除対象から除外する
+          find wiki_temp -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          # doc/ の内容を Wiki フォルダへコピー（隠しファイルも対象）
+          cp -r doc/. wiki_temp/
+
+          # Git の設定とプッシュ
+          cd wiki_temp
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          # 差分がある場合のみコミットしてプッシュ
+          if ! git diff --cached --exit-code --quiet; then
+            git commit -m "wiki: sync from ${GITHUB_SHA:0:7}"
+            git push origin master
+          else
+            echo "No changes to sync."
+          fi
