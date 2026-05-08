@@ -86,9 +86,31 @@ mcp__context7__resolve-library-id → mcp__context7__query-docs → npm install
 
 ---
 
-## Step 7: 実装完了後、ステータスを In Review に変更する
+## Step 7: PR を作成する
 
-エージェントによる実装が完了したら、GitHub Projects のステータスを "In Review" に更新する：
+ユーザーに確認を取ってから PR を作成する。
+
+PR body の**末尾には必ず** `Closes #<issue番号>` を記載する。これによりマージ時に issue が自動クローズされる。
+
+```bash
+gh pr create \
+  --title "<PRタイトル>" \
+  --body "$(cat <<'EOF'
+## Summary
+<変更内容の説明>
+
+Closes #<issue番号>
+EOF
+)"
+```
+
+> `Closes #<番号>` の記載漏れはissueの自動クローズが機能しなくなるため、必須とする。
+
+---
+
+## Step 8: ステータスを In Review に変更する
+
+PR 作成後、GitHub Projects のステータスを "In Review" に更新する：
 
 ```bash
 gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <project-id> --single-select-option-id <in-review-option-id>
@@ -100,6 +122,5 @@ gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <p
 
 ## 注意事項
 
-- worktree 内の作業が完了したら、PR の作成はユーザーに確認を取ってから行う
 - `git worktree add` 時にブランチ名が既存と衝突する場合は `issue-<番号>-2` などで回避する
 - GitHub Projects のステータス変更に必要な ID（project-id, field-id, option-id）は `gh project field-list` と `gh project item-list` で動的に取得する
