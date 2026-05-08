@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     container_name: logi-canvus-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: logi_canvus
-      MYSQL_USER: logi_canvus
-      MYSQL_PASSWORD: logi_canvus
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-logi_canvus}
+      MYSQL_USER: ${MYSQL_USER:-logi_canvus}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-logi_canvus}
     ports:
       - '3306:3306'
     volumes:
