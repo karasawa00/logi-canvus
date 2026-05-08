@@ -1,0 +1,91 @@
+# ===========================================================================
+# PRマージ時に紐づくissueを自動クローズするワークフロー
+#
+# 【使い方】
+# PRの説明文(body)に以下の形式でissue番号を記載してマージするだけ。
+#
+# ■ "#N" 形式（推奨）
+#   Closes #42
+#   Fixes #100
+#   Resolves #7
+#
+# ■ URL形式
+#   Closes https://github.com/karasawa00/logi-canvus/issues/42
+#
+# ■ 複数issueを同時クローズ（複数行に書けばすべてクローズされる）
+#   Closes #42
+#   Fixes #100
+#
+# ■ 使えるキーワード（大文字小文字どちらでも可）
+#   close / closes / closed
+#   fix   / fixes  / fixed
+#   resolve / resolves / resolved
+#
+# 【クローズされるタイミング】
+#   PRがマージされた瞬間に発火。クローズされたissueには
+#   "Closed via PR #XX." というコメントが自動投稿される。
+#
+# 【クローズされない場合】
+#   - PRが説明文なしでマージされた場合
+#   - 説明文にキーワードが含まれていない場合
+#   - PRがマージではなくクローズ（Close without merge）された場合
+# ===========================================================================
+name: Close Issues on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  close-linked-issues:
+    # マージされた場合のみ実行（Close without merge は対象外）
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Close issues linked in PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # "#N" 形式 (例: Closes #42)
+          NUMBERS_FROM_HASH=$(echo "$PR_BODY" \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' \
+            | grep -oE '[0-9]+')
+
+          # URL 形式 (例: Closes https://github.com/owner/repo/issues/42)
+          NUMBERS_FROM_URL=$(echo "$PR_BODY" \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+https://github\.com/[^/]+/[^/]+/issues/[0-9]+' \
+            | grep -oE '[0-9]+$')
+
+          # 両形式の結果をマージして重複排除
+          ISSUE_NUMBERS=$(printf '%s\n%s' "$NUMBERS_FROM_HASH" "$NUMBERS_FROM_URL" \
+            | grep -v '^$' | sort -u)
+
+          if [ -z "$ISSUE_NUMBERS" ]; then
+            echo "No linked issues found in PR #${PR_NUMBER}"
+            exit 0
+          fi
+
+          for ISSUE_NUMBER in $ISSUE_NUMBERS; do
+            echo "Closing issue #${ISSUE_NUMBER}..."
+
+            # issueをクローズ
+            curl -s -X PATCH \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/issues/${ISSUE_NUMBER}" \
+              -d '{"state":"closed","state_reason":"completed"}'
+
+            # クローズしたことをissueにコメント投稿
+            curl -s -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/issues/${ISSUE_NUMBER}/comments" \
+              -d "{\"body\":\"Closed via PR #${PR_NUMBER}.\"}"
+
+            echo "Closed issue #${ISSUE_NUMBER}"
+          done
