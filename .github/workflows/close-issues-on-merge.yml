@@ -62,16 +62,16 @@ jobs:
           # "#N" 形式 (例: Closes #42)
           NUMBERS_FROM_HASH=$(echo "$PR_BODY" \
             | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' \
-            | grep -oE '[0-9]+')
+            | grep -oE '[0-9]+' || true)
 
           # URL 形式 (例: Closes https://github.com/owner/repo/issues/42)
           NUMBERS_FROM_URL=$(echo "$PR_BODY" \
             | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+https://github\.com/[^/]+/[^/]+/issues/[0-9]+' \
-            | grep -oE '[0-9]+$')
+            | grep -oE '[0-9]+$' || true)
 
           # 両形式の結果をマージして重複排除
           ISSUE_NUMBERS=$(printf '%s\n%s' "$NUMBERS_FROM_HASH" "$NUMBERS_FROM_URL" \
-            | grep -v '^$' | sort -u)
+            | grep -v '^$' | sort -u || true)
 
           if [ -z "$ISSUE_NUMBERS" ]; then
             echo "No linked issues found in PR #${PR_NUMBER}"
