@@ -86,37 +86,9 @@ mcp__context7__resolve-library-id → mcp__context7__query-docs → npm install
 
 ---
 
-## Step 7: PR を作成する
+## Step 7: PR 作成はユーザーが明示的に依頼してから行う
 
-ユーザーに確認を取ってから PR を作成する。
-
-PR body の**末尾には必ず** `Closes #<issue番号>` を記載する。これによりマージ時に issue が自動クローズされる。
-
-```bash
-gh pr create \
-  --title "<PRタイトル>" \
-  --body "$(cat <<'EOF'
-## Summary
-<変更内容の説明>
-
-Closes #<issue番号>
-EOF
-)"
-```
-
-> `Closes #<番号>` の記載漏れはissueの自動クローズが機能しなくなるため、必須とする。
-
----
-
-## Step 8: ステータスを In Review に変更する
-
-PR 作成後、GitHub Projects のステータスを "In Review" に更新する：
-
-```bash
-gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <project-id> --single-select-option-id <in-review-option-id>
-```
-
-プロジェクトに紐づいていない場合はスキップする。
+実装完了後、PR の作成は自動で行わない。ユーザーが「PRを作って」と依頼したときに `create-pr` スキルを使う。
 
 ---
 
