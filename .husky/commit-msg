@@ -1,6 +1,13 @@
 #!/bin/sh
 # Validate commit message follows Conventional Commits format: type: subject
 # Valid types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert
+#
+# Examples:
+#   feat: add user authentication
+#   fix: resolve login redirect loop
+#   feat(auth): add invite token validation
+#   docs: update API design spec
+#   chore: update dependencies
 
 commit_msg=$(cat "$1")
 
