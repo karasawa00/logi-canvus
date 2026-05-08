@@ -25,13 +25,22 @@ git switch main && git pull
 
 ---
 
-## Step 3: Issue 内容を取得する
+## Step 3: Issue 内容を取得し、ステータスを In Progress に変更する
 
 ```bash
-gh issue view <番号> --json title,body,labels
+gh issue view <番号> --json title,body,labels,projectItems
 ```
 
 取得した内容（タイトル・本文・ラベル）を読み、次のステップのエージェント選択と実装方針の判断に使う。
+
+GitHub Projects のステータスが "Todo" だった場合は "In Progress" に変更する：
+
+```bash
+# projectItems からフィールドIDとアイテムIDを確認して更新
+gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <project-id> --single-select-option-id <in-progress-option-id>
+```
+
+> ステータスフィールドIDや選択肢IDが不明な場合は `gh project field-list <project-number> --owner <owner>` で確認する。プロジェクトに紐づいていない場合やステータスが Todo 以外の場合はスキップする。
 
 ---
 
@@ -77,7 +86,20 @@ mcp__context7__resolve-library-id → mcp__context7__query-docs → npm install
 
 ---
 
+## Step 7: 実装完了後、ステータスを In Review に変更する
+
+エージェントによる実装が完了したら、GitHub Projects のステータスを "In Review" に更新する：
+
+```bash
+gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <project-id> --single-select-option-id <in-review-option-id>
+```
+
+プロジェクトに紐づいていない場合はスキップする。
+
+---
+
 ## 注意事項
 
 - worktree 内の作業が完了したら、PR の作成はユーザーに確認を取ってから行う
 - `git worktree add` 時にブランチ名が既存と衝突する場合は `issue-<番号>-2` などで回避する
+- GitHub Projects のステータス変更に必要な ID（project-id, field-id, option-id）は `gh project field-list` と `gh project item-list` で動的に取得する

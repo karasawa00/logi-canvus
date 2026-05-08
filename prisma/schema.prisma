@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users       User[]
+  folders     Folder[]
+  pages       Page[]
+  invitations Invitation[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  orgId        String?   @map("org_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  organization Organization? @relation(fields: [orgId], references: [id])
+  pages        Page[]        @relation("PageCreatedBy")
+  annotations  Annotation[]  @relation("AnnotationCreatedBy")
+  comments     Comment[]     @relation("CommentCreatedBy")
+  notifications Notification[]
+  invitations  Invitation[]  @relation("InvitationCreatedBy")
+
+  @@map("users")
+}
+
+model Folder {
+  id             String   @id @default(cuid())
+  name           String
+  orgId          String   @map("org_id")
+  parentFolderId String?  @map("parent_folder_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  parent       Folder?      @relation("FolderChildren", fields: [parentFolderId], references: [id])
+  children     Folder[]     @relation("FolderChildren")
+  pages        Page[]
+
+  @@map("folders")
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  title     String
+  orgId     String   @map("org_id")
+  folderId  String?  @map("folder_id")
+  createdBy String   @map("created_by")
+  version   Int      @default(1)
+  urlSlug   String   @unique @map("url_slug")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization  Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  folder        Folder?        @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  creator       User           @relation("PageCreatedBy", fields: [createdBy], references: [id])
+  blocks        Block[]
+  notifications Notification[] @relation("ConflictPage")
+
+  @@map("pages")
+}
+
+model Block {
+  id        String    @id @default(cuid())
+  pageId    String    @map("page_id")
+  type      BlockType
+  order     Float
+  content   String?   @db.Text
+  version   Int       @default(1)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  page        Page          @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  nodes       DiagramNode[]
+  edges       DiagramEdge[]
+  annotations Annotation[]
+
+  @@index([pageId, order])
+  @@map("blocks")
+}
+
+enum BlockType {
+  text
+  heading
+  diagram
+}
+
+model DiagramNode {
+  id        String          @id @default(cuid())
+  blockId   String          @map("block_id")
+  type      DiagramNodeType
+  label     String
+  positionX Float           @map("position_x")
+  positionY Float           @map("position_y")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  block       Block        @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  edgesFrom   DiagramEdge[] @relation("EdgeSource")
+  edgesTo     DiagramEdge[] @relation("EdgeTarget")
+  annotations Annotation[]
+
+  @@index([blockId])
+  @@map("diagram_nodes")
+}
+
+enum DiagramNodeType {
+  Screen
+  Action
+  Branch
+  Start
+  End
+  External
+}
+
+model DiagramEdge {
+  id           String   @id @default(cuid())
+  blockId      String   @map("block_id")
+  sourceNodeId String   @map("source_node_id")
+  targetNodeId String   @map("target_node_id")
+  label        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  block      Block       @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  sourceNode DiagramNode @relation("EdgeSource", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode DiagramNode @relation("EdgeTarget", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@index([blockId])
+  @@index([sourceNodeId])
+  @@index([targetNodeId])
+  @@map("diagram_edges")
+}
+
+model Annotation {
+  id          String    @id @default(cuid())
+  blockId     String    @map("block_id")
+  nodeId      String?   @map("node_id")
+  blockOffset Int?      @map("block_offset")
+  createdBy   String    @map("created_by")
+  resolvedAt  DateTime? @map("resolved_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  block    Block        @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  // ノード削除時もアノテーションを削除する（ピンの参照先がなくなるため）
+  node     DiagramNode? @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  creator  User         @relation("AnnotationCreatedBy", fields: [createdBy], references: [id])
+  comments Comment[]
+
+  @@index([blockId])
+  @@map("annotations")
+}
+
+model Comment {
+  id           String   @id @default(cuid())
+  annotationId String   @map("annotation_id")
+  body         String   @db.Text
+  createdBy    String   @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  annotation    Annotation     @relation(fields: [annotationId], references: [id], onDelete: Cascade)
+  creator       User           @relation("CommentCreatedBy", fields: [createdBy], references: [id])
+  notifications Notification[] @relation("ReplyComment")
+
+  @@map("comments")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  commentId String?          @map("comment_id")
+  pageId    String?          @map("page_id")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment? @relation("ReplyComment", fields: [commentId], references: [id], onDelete: Cascade)
+  page    Page?    @relation("ConflictPage", fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  annotation_reply
+  mention
+  conflict
+}
+
+model Invitation {
+  id        String    @id @default(cuid())
+  orgId     String    @map("org_id")
+  email     String
+  token     String    @unique
+  createdBy String    @map("created_by")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  creator      User         @relation("InvitationCreatedBy", fields: [createdBy], references: [id])
+
+  @@map("invitations")
+}
