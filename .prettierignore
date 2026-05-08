@@ -4,3 +4,5 @@ dist
 build
 *.min.js
 *.min.css
+doc/
+.claude/
