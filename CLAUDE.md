@@ -4,14 +4,14 @@
 
 ## 設計ドキュメント
 
-| ドキュメント          | 内容                                                               |
+※テスト設計書はcontext切迫しないよう、記載していない（/doc/test-spec.md）
+| ドキュメント | 内容 |
 | --------------------- | ------------------------------------------------------------------ |
-| @doc/spec.md          | プロダクト仕様書（機能・権限・データモデル骨格）                   |
-| @doc/tech-stack.md    | 技術スタック・Makefile・Husky・デプロイ先                          |
-| @doc/er-diagram.md    | ERダイアグラム（Mermaid）・インデックス・カスケード削除方針        |
+| @doc/spec.md | プロダクト仕様書（機能・権限・データモデル骨格） |
+| @doc/tech-stack.md | 技術スタック・Makefile・Husky・デプロイ先 |
+| @doc/er-diagram.md | ERダイアグラム（Mermaid）・インデックス・カスケード削除方針 |
 | @doc/screen-design.md | 画面設計書（画面一覧・遷移図・UIレイアウト・App Routerルート構成） |
-| @doc/api-design.md    | API設計書                                                          |
-| @doc/test-spec.md     | テスト仕様書                                                       |
+| @doc/api-design.md | API設計書 |
 
 ## プロダクトの核心
 
