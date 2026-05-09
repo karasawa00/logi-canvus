@@ -34,30 +34,37 @@ git log main..HEAD --pretty=format:"%s"
 
 ---
 
-## Step 3: PR を作成する
+## Step 3: PR 本文を生成する
 
-PR body の**末尾には必ず** `Closes #<issue番号>` を記載する。これによりマージ時に Issue が自動クローズされる。
+`.github/PULL_REQUEST_TEMPLATE.md` を読み込んで本文のベースとする。
+
+```bash
+template=$(cat .github/PULL_REQUEST_TEMPLATE.md)
+```
+
+取得したテンプレートを以下のルールで埋める。
+
+- **関連 Issue**: `Closes #<issue番号>` を記入する（必須。マージ時に Issue が自動クローズされる）
+- **変更の種別**: 該当する種別の `[ ]` を `[x]` にチェックする
+- **変更の概要**: コミット履歴・差分から箇条書きで生成する
+- **テスト手順**: 変更内容から動作確認の手順を記述する
+- **スクリーンショット**: UI変更でなければセクションごと省略してよい
+- **チェックリスト**: そのまま残す（レビュアーがチェックできるようにする）
+
+## Step 4: PR を作成する
 
 ```bash
 gh pr create \
   --title "<PRタイトル>" \
   --body "$(cat <<'EOF'
-## Summary
-<変更内容の説明>
-
-## Test plan
-<動作確認の手順>
-
-Closes #<issue番号>
+<生成した本文>
 EOF
 )"
 ```
 
-> `Closes #<番号>` の記載漏れは Issue の自動クローズが機能しなくなるため、必須とする。
-
 ---
 
-## Step 4: GitHub Projects のステータスを "In Review" に変更する
+## Step 5: GitHub Projects のステータスを "In Review" に変更する
 
 PR 作成後、GitHub Projects のステータスを "In Review" に更新する。
 

@@ -1,7 +1,7 @@
 ---
 name: 機能要望
 about: 新機能・改善案を提案する
-labels: enhancement
+labels: ''
 assignees: ''
 ---
 
