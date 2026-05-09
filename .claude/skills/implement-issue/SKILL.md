@@ -33,10 +33,26 @@ gh issue view <番号> --json title,body,labels,projectItems
 
 取得した内容（タイトル・本文・ラベル）を読み、次のステップのエージェント選択と実装方針の判断に使う。
 
-GitHub Projects のステータスが "Todo" だった場合は "In Progress" に変更する：
+GitHub Projects のステータスが "Todo" だった場合は "In Progress" に変更する。
+
+**アイテムIDの取得は `gh issue view` の `projectItems` から行う**（`gh project item-list` は件数上限の問題があるため使わない）：
 
 ```bash
-# projectItems からフィールドIDとアイテムIDを確認して更新
+# issue 側からプロジェクトアイテムIDを取得
+gh issue view <番号> --json projectItems
+# → projectItems[].id にアイテムIDが含まれる
+```
+
+`projectItems` が空の場合は issue がプロジェクト未登録のため、先に追加してから再取得する：
+
+```bash
+gh project item-add <project-number> --owner <owner> --url <issue-url>
+gh issue view <番号> --json projectItems  # 再取得
+```
+
+取得したアイテムIDでステータスを更新する：
+
+```bash
 gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <project-id> --single-select-option-id <in-progress-option-id>
 ```
 
