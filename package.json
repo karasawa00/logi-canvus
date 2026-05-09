@@ -19,6 +19,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^6.8.2",
     "@tanstack/react-query": "^5.75.8",
     "@tiptap/extension-bold": "^2.11.7",
