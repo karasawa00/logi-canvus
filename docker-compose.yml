@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-logi_canvus}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-logi_canvus}
     ports:
-      - '3306:3306'
+      - '${DB_HOST_PORT:-3306}:3306'
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
