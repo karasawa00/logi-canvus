@@ -12,6 +12,9 @@
 | @doc/er-diagram.md | ERダイアグラム（Mermaid）・インデックス・カスケード削除方針 |
 | @doc/screen-design.md | 画面設計書（画面一覧・遷移図・UIレイアウト・App Routerルート構成） |
 | @doc/api-design.md | API設計書 |
+| @doc/coding-rules-backend.md | バックエンド コーディングルール（Route Handler・Prisma・Auth.js・楽観的ロック） |
+| @doc/coding-rules-frontend.md | フロントエンド コーディングルール（Next.js App Router・TipTap・React Flow・Tailwind） |
+| @doc/coding-rules-test.md | テスト コーディングルール（Vitest・命名規則・モック方針・カバレッジ） |
 
 ## プロダクトの核心
 
