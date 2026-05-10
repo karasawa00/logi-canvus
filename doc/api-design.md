@@ -83,6 +83,7 @@ Auth.js が生成する `/api/auth/*` ルートで処理され、カスタム実
 > サーバーコンポーネント・Route Handler では `auth()` 関数でセッションを取得する。
 > クライアントコンポーネントでは `useSession()` フックを使用する。
 > 組織情報（`organization`）は Auth.js のセッションオブジェクトを拡張して保持する。
+> セッション戦略（JWT vs database セッション）の選定経緯は [ADR-002](adr/002-auth-session-strategy-jwt.md) を参照。
 
 ---
 

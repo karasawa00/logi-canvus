@@ -19,7 +19,7 @@
 | API | Next.js Route Handlers（App Router） |
 | ORM | Prisma |
 | DB | MySQL |
-| 認証 | Auth.js v5（NextAuth / Credentials Provider）+ Prisma Adapter。ログイン・ログアウト・セッション確認は Auth.js の `/api/auth/*` ルートに委譲。ユーザー登録（signup）のみカスタム Route Handler（`/api/v1/auth/signup`）として実装する。 |
+| 認証 | Auth.js v5（NextAuth / Credentials Provider）。セッション戦略は JWT（`strategy: 'jwt'`）を採用し、`@auth/prisma-adapter` は使用しない（→ [ADR-002](adr/002-auth-session-strategy-jwt.md)）。ログイン・ログアウト・セッション確認は Auth.js の `/api/auth/*` ルートに委譲。ユーザー登録（signup）のみカスタム Route Handler（`/api/v1/auth/signup`）として実装する。 |
 | リアルタイム通知 | Socket.io |
 
 ## インフラ（ローカル開発）
