@@ -1,40 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
-// ---------------------------------------------------------------------------
-// Helper: generate a URL-safe slug from an organization name.
-// Example: "Acme Inc" → "acme-inc"
-// ---------------------------------------------------------------------------
 function slugify(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric chars except hyphens/spaces
-    .replace(/\s+/g, '-') // collapse whitespace to hyphens
-    .replace(/-+/g, '-') // collapse repeated hyphens
-    .replace(/^-|-$/g, '') // trim leading/trailing hyphens
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
-// ---------------------------------------------------------------------------
-// Helper: ensure the slug is unique within the organizations table.
-// If "acme-inc" is taken, try "acme-inc-2", "acme-inc-3", etc.
-// ---------------------------------------------------------------------------
-async function uniqueOrgSlug(base: string): Promise<string> {
+// Runs inside a transaction to make slug check + org creation atomic.
+async function uniqueOrgSlug(tx: Prisma.TransactionClient, base: string): Promise<string> {
   let candidate = base
   let attempt = 2
 
   while (true) {
-    const existing = await prisma.organization.findUnique({ where: { slug: candidate } })
+    const existing = await tx.organization.findUnique({ where: { slug: candidate } })
     if (!existing) return candidate
     candidate = `${base}-${attempt}`
     attempt++
   }
 }
 
-// ---------------------------------------------------------------------------
-// Request body shape (matches doc/api-design.md §2-1)
-// ---------------------------------------------------------------------------
 interface SignupBody {
   name: string
   email: string
@@ -44,13 +35,9 @@ interface SignupBody {
     | { action: 'join'; invite_token: string }
 }
 
-// ---------------------------------------------------------------------------
-// POST /api/v1/auth/signup
-// ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
   let body: SignupBody
 
-  // 1. Parse JSON body
   try {
     body = (await request.json()) as SignupBody
   } catch {
@@ -60,7 +47,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // 2. Validate required top-level fields
   const { name, email, password, organization } = body
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -77,7 +63,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Basic email format check
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json(
       { error: { code: 'VALIDATION_ERROR', message: 'email is not valid.' } },
@@ -122,8 +107,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (organization.action === 'create') {
-    const orgName = (organization as { action: 'create'; name: string }).name
-    if (!orgName || typeof orgName !== 'string' || orgName.trim() === '') {
+    if (!organization.name || typeof organization.name !== 'string' || organization.name.trim() === '') {
       return NextResponse.json(
         { error: { code: 'VALIDATION_ERROR', message: 'organization.name is required.' } },
         { status: 400 },
@@ -132,8 +116,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (organization.action === 'join') {
-    const token = (organization as { action: 'join'; invite_token: string }).invite_token
-    if (!token || typeof token !== 'string' || token.trim() === '') {
+    if (
+      !organization.invite_token ||
+      typeof organization.invite_token !== 'string' ||
+      organization.invite_token.trim() === ''
+    ) {
       return NextResponse.json(
         {
           error: { code: 'VALIDATION_ERROR', message: 'organization.invite_token is required.' },
@@ -143,8 +130,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 3. Check for duplicate email
-  const existingUser = await prisma.user.findUnique({ where: { email } })
+  const normalizedEmail = email.toLowerCase()
+
+  const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } })
   if (existingUser) {
     return NextResponse.json(
       { error: { code: 'CONFLICT', message: 'An account with this email already exists.' } },
@@ -152,19 +140,15 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // 4. Hash the password
-  const passwordHash = await bcrypt.hash(password, 12)
-
-  // 5. Branch on organization action
   if (organization.action === 'create') {
-    const orgName = (organization as { action: 'create'; name: string }).name.trim()
+    const orgName = organization.name.trim()
+    const passwordHash = await bcrypt.hash(password, 12)
 
     try {
-      const baseSlug = slugify(orgName) || 'org'
-      const slug = await uniqueOrgSlug(baseSlug)
-
-      // Create org + user in a single transaction
       const result = await prisma.$transaction(async (tx) => {
+        const baseSlug = slugify(orgName) || 'org'
+        const slug = await uniqueOrgSlug(tx, baseSlug)
+
         const org = await tx.organization.create({
           data: { name: orgName, slug },
         })
@@ -172,7 +156,7 @@ export async function POST(request: NextRequest) {
         const user = await tx.user.create({
           data: {
             name: name.trim(),
-            email,
+            email: normalizedEmail,
             passwordHash,
             orgId: org.id,
           },
@@ -190,7 +174,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 },
       )
-    } catch {
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        return NextResponse.json(
+          { error: { code: 'CONFLICT', message: 'An account with this email already exists.' } },
+          { status: 409 },
+        )
+      }
       return NextResponse.json(
         { error: { code: 'INTERNAL_ERROR', message: 'Failed to create account.' } },
         { status: 500 },
@@ -199,9 +189,8 @@ export async function POST(request: NextRequest) {
   }
 
   // organization.action === 'join'
-  const inviteToken = (organization as { action: 'join'; invite_token: string }).invite_token.trim()
+  const inviteToken = organization.invite_token.trim()
 
-  // 6. Validate the invitation token
   const invitation = await prisma.invitation.findUnique({
     where: { token: inviteToken },
     include: { organization: true },
@@ -228,13 +217,27 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // 7. Create user and mark invitation used in one transaction
+  if (invitation.email !== normalizedEmail) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'FORBIDDEN',
+          message: 'This invitation was sent to a different email address.',
+        },
+      },
+      { status: 403 },
+    )
+  }
+
+  // Hash password after invitation validation to avoid wasted computation on invalid tokens.
+  const passwordHash = await bcrypt.hash(password, 12)
+
   try {
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           name: name.trim(),
-          email,
+          email: normalizedEmail,
           passwordHash,
           orgId: invitation.orgId,
         },
@@ -261,7 +264,13 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 },
     )
-  } catch {
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return NextResponse.json(
+        { error: { code: 'CONFLICT', message: 'An account with this email already exists.' } },
+        { status: 409 },
+      )
+    }
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to create account.' } },
       { status: 500 },
