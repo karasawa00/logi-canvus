@@ -1,8 +1,7 @@
 import { auth } from '@/lib/auth'
 import { NextResponse } from 'next/server'
 
-// Public routes that don't require authentication
-const PUBLIC_PATHS = ['/login', '/signup']
+const PUBLIC_PATHS = ['/login', '/signup', '/invite']
 const PUBLIC_PATH_PREFIXES = ['/invite/']
 
 function isPublicPath(pathname: string): boolean {
@@ -10,7 +9,7 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-function isAuthPath(pathname: string): boolean {
+function isLoginOrSignup(pathname: string): boolean {
   return pathname === '/login' || pathname === '/signup'
 }
 
@@ -18,8 +17,8 @@ export default auth((req) => {
   const { pathname } = req.nextUrl
   const isAuthenticated = !!req.auth
 
-  // Redirect authenticated users away from login/signup to their org dashboard
-  if (isAuthenticated && isAuthPath(pathname)) {
+  // Redirect authenticated users away from login/signup/root to their org dashboard
+  if (isAuthenticated && (isLoginOrSignup(pathname) || pathname === '/')) {
     const orgSlug = req.auth?.user?.orgSlug
     if (orgSlug) {
       return NextResponse.redirect(new URL(`/${orgSlug}`, req.url))
@@ -39,6 +38,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  // Exclude API routes, Next.js internals, and static assets
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
