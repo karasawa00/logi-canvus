@@ -199,6 +199,8 @@ Auth.js が生成する `/api/auth/*` ルートで処理され、カスタム実
 #### POST `/api/v1/organizations/:org-slug/invitations`
 招待メールを送信する。
 
+> **email の正規化:** 受信した email は小文字に正規化してから DB に保存する。サインアップ時の email も同様に正規化されるため、比較は常に lowercase 同士で行われる。
+
 **Request**
 ```json
 { "email": "newmember@example.com" }
