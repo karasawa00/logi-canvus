@@ -142,6 +142,11 @@ erDiagram
 
 ## 補足
 
+### Auth.js の Session / Account テーブルについて
+
+本スキーマには Auth.js が必要とする `sessions` / `accounts` / `verification_tokens` テーブルは含まない。
+セッション管理に JWT（`strategy: 'jwt'`）を採用したため、DB へのセッション保存が不要になっている（→ [ADR-002](adr/002-auth-session-strategy-jwt.md)）。
+
 ### Block.type
 | 値 | 説明 |
 |----|------|

@@ -83,12 +83,15 @@ Auth.js が生成する `/api/auth/*` ルートで処理され、カスタム実
 > サーバーコンポーネント・Route Handler では `auth()` 関数でセッションを取得する。
 > クライアントコンポーネントでは `useSession()` フックを使用する。
 > 組織情報（`organization`）は Auth.js のセッションオブジェクトを拡張して保持する。
+> セッション戦略（JWT vs database セッション）の選定経緯は [ADR-002](adr/002-auth-session-strategy-jwt.md) を参照。
 
 ---
 
 #### POST `/api/v1/auth/signup`
 （カスタム Route Handler）新規ユーザー登録と組織の作成または既存組織への参加を行う。
 登録完了後、クライアントは `signIn('credentials', { email, password })` を呼び出してセッションを開始する。
+
+> **email の正規化:** サーバー側で email を小文字に正規化してから保存・照合する。
 
 **Request**
 ```json
@@ -123,6 +126,12 @@ Auth.js が生成する `/api/auth/*` ルートで処理され、カスタム実
   }
 }
 ```
+
+| エラー | 条件 |
+|--------|------|
+| `409 CONFLICT` | 同じ email のアカウントが既に存在する |
+| `403 FORBIDDEN` | `join` 時: リクエストの email が招待の宛先 email と不一致 |
+| `404 NOT_FOUND` | `join` 時: トークンが無効・期限切れ・使用済み |
 
 ---
 
@@ -190,6 +199,8 @@ Auth.js が生成する `/api/auth/*` ルートで処理され、カスタム実
 
 #### POST `/api/v1/organizations/:org-slug/invitations`
 招待メールを送信する。
+
+> **email の正規化:** 受信した email は小文字に正規化してから DB に保存する。サインアップ時の email も同様に正規化されるため、比較は常に lowercase 同士で行われる。
 
 **Request**
 ```json
