@@ -1,4 +1,4 @@
-.PHONY: setup dev build lint type-check test db\:up db\:down db\:migrate db\:generate db\:studio deploy
+.PHONY: setup dev build lint type-check test test\:e2e db\:up db\:down db\:migrate db\:generate db\:studio deploy
 
 # 初回セットアップ（npm install + DB起動 + マイグレーション）
 setup:
@@ -25,6 +25,10 @@ type-check:
 # Vitest 実行
 test:
 	npm run test
+
+# Playwright E2E テスト実行（dev server が起動済みであること）
+test\:e2e:
+	npm run test:e2e
 
 # MySQL コンテナ起動（healthy になるまで待機）
 db\:up:

@@ -149,3 +149,62 @@ expect(json.error.code).toBe('CONFLICT')
 - API Route Handler は正常系・主要な異常系（バリデーション・認可・競合）を必ずカバーする
 - UI コンポーネントは主要なインタラクション（クリック・入力）をテストする
 - 100% カバレッジは目標としない。価値のある境界値・エラーパスに絞る
+
+---
+
+## E2E テスト（Playwright）
+
+### 基本方針
+
+- E2E テストは Playwright を使う（`make test:e2e` で実行）
+- Vitest（`make test`）とは完全に分離し、互いの設定・実行に干渉しない
+- ブラウザ操作が必要な画面フロー（フォーム送信・ページ遷移）に限定して使う
+- ユニットテスト・統合テストで検証できるロジックはそちらに任せる
+
+### ファイル配置
+
+```
+src/
+  test/
+    e2e/
+      login.test.ts    ← 画面単位で1ファイル
+      signup.test.ts
+      ...
+playwright.config.ts   ← プロジェクトルート
+```
+
+### テスト構造
+
+`test.describe` → `test` の2階層。Vitest と異なり `it` ではなく `test` を使う。
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('ログイン画面 /login', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login')
+  })
+
+  test('Email空のまま送信 — エラーが表示される', async ({ page }) => {
+    await page.getByTestId('submit-button').click()
+    await expect(page.getByTestId('error-message')).toHaveText('メールアドレスを入力してください。')
+  })
+})
+```
+
+### セレクタ方針
+
+- `data-testid` 属性を優先する（実装コンポーネントに `data-testid` を付与すること）
+- ロール指定（`getByRole`）はリンク・ボタンなどセマンティクスが明確な場合に使う
+- テキスト指定（`getByText`）はコピーが変わるとテストが壊れるため避ける
+
+### dev server との関係
+
+- `playwright.config.ts` に `webServer` を設定し、CI では自動起動する
+- ローカルでは `reuseExistingServer: true`（`npm run dev` 起動済みを再利用）
+
+### CI での実行
+
+- `e2e` ジョブで MySQL サービスコンテナを起動し、`prisma migrate deploy` 後に実行する
+- E2E ジョブは `test` ジョブ（Vitest）と並列実行する
+- 実行コマンド: `make test:e2e`
