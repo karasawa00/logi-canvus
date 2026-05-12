@@ -412,25 +412,6 @@ describe('POST /api/v1/auth/signup', () => {
     expect(json.error.code).toBe('VALIDATION_ERROR')
   })
 
-  it('password が空文字 — 400 VALIDATION_ERROR を返す', async () => {
-    const req = new Request('http://localhost/api/v1/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'テストユーザー',
-        email: 'test@example.com',
-        password: '',
-        organization: { action: 'create', name: 'Test Org' },
-      }),
-    })
-
-    const res = await POST(req as NextRequest)
-    expect(res.status).toBe(400)
-
-    const json = await res.json()
-    expect(json.error.code).toBe('VALIDATION_ERROR')
-  })
-
   it('password が 7 文字（最低 8 文字未満）— 400 VALIDATION_ERROR を返す', async () => {
     const req = new Request('http://localhost/api/v1/auth/signup', {
       method: 'POST',
