@@ -13,16 +13,26 @@
 ```
 src/
   test/
-    setup.ts          ← グローバルセットアップ（DB 接続など）
+    setup.ts                          ← グローバルセットアップ（DB 接続など）
     api/
-      signup.test.ts  ← Route Handler のテスト
-      ...
+      v1/
+        auth/
+          signup/
+            post.test.ts              ← POST /api/v1/auth/signup
+        organizations/
+          [org-slug]/
+            members/
+              me/
+                delete.test.ts        ← DELETE /api/v1/organizations/:org-slug/members/me
     components/
-      AnnotationPin.test.ts  ← UI コンポーネントのテスト
+      AnnotationPin.test.ts           ← UI コンポーネントのテスト
 ```
 
 - テストファイルは `src/test/` 配下に置く
-- ファイル名は `<対象>.test.ts`（または `.test.tsx`）
+- API テストは実際のエンドポイントと同じ階層でフォルダを切り、HTTPメソッドごとに `{method}.test.ts` として作成する
+  - 例: `POST /api/v1/auth/signup` → `src/test/api/v1/auth/signup/post.test.ts`
+  - 例: `GET /api/v1/organizations/:org-slug/members` → `src/test/api/v1/organizations/[org-slug]/members/get.test.ts`
+- UI コンポーネントのテストファイルは `<対象>.test.tsx`
 
 ---
 

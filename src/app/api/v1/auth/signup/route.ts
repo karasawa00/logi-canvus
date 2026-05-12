@@ -30,9 +30,7 @@ interface SignupBody {
   name: string
   email: string
   password: string
-  organization:
-    | { action: 'create'; name: string }
-    | { action: 'join'; invite_token: string }
+  organization: { action: 'create'; name: string } | { action: 'join'; invite_token: string }
 }
 
 export async function POST(request: NextRequest) {
@@ -107,7 +105,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (organization.action === 'create') {
-    if (!organization.name || typeof organization.name !== 'string' || organization.name.trim() === '') {
+    if (
+      !organization.name ||
+      typeof organization.name !== 'string' ||
+      organization.name.trim() === ''
+    ) {
       return NextResponse.json(
         { error: { code: 'VALIDATION_ERROR', message: 'organization.name is required.' } },
         { status: 400 },
