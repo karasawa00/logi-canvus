@@ -1,8 +1,12 @@
-export default function LoginPage() {
-  return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-2xl font-bold text-center">logi-canvus</h1>
-      <p className="text-center text-gray-500">ログイン画面（実装予定）</p>
-    </div>
-  )
+import { LoginForm } from './LoginForm'
+
+interface LoginPageProps {
+  searchParams: Promise<{ redirect?: string }>
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { redirect } = await searchParams
+  const redirectTo = redirect ?? '/'
+
+  return <LoginForm redirectTo={redirectTo} />
 }
