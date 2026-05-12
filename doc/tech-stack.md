@@ -42,7 +42,8 @@
 | コマンド管理 | Makefile |
 | Lint | ESLint |
 | フォーマット | Prettier |
-| テスト | Vitest |
+| テスト（ユニット・統合） | Vitest |
+| テスト（E2E） | Playwright |
 
 ## Makefile コマンド一覧
 
@@ -58,7 +59,8 @@
 | `make db:migrate` | Prisma マイグレーション実行（`prisma migrate dev`） |
 | `make db:generate` | Prisma クライアント生成（`prisma generate`） |
 | `make db:studio` | Prisma Studio 起動 |
-| `make test` | Vitest 実行 |
+| `make test` | Vitest 実行（ユニット・統合テスト） |
+| `make test:e2e` | Playwright E2E テスト実行（dev server 起動済みが前提） |
 | `make deploy` | GCP Cloud Run へデプロイ（詳細は別途追記） |
 
 ## Husky フック
