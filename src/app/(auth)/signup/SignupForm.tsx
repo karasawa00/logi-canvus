@@ -101,7 +101,9 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
       })
 
       if (signInResult?.error) {
-        setError('アカウントの作成は完了しましたが、ログインに失敗しました。ログイン画面からサインインしてください。')
+        setError(
+          'アカウントの作成は完了しましたが、ログインに失敗しました。ログイン画面からサインインしてください。',
+        )
         setIsLoading(false)
         return
       }
@@ -143,9 +145,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
   return (
     <div className="rounded-lg bg-white p-8 shadow">
       <h1 className="mb-1 text-center text-2xl font-bold">アカウント作成</h1>
-      <p className="mb-6 text-center text-sm text-gray-400">
-        ステップ {step} / 2
-      </p>
+      <p className="mb-6 text-center text-sm text-gray-400">ステップ {step} / 2</p>
 
       {step === 1 && (
         <form onSubmit={handleStep1Submit} noValidate data-testid="signup-step1-form">
@@ -157,6 +157,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               id="name"
               type="text"
               autoComplete="name"
+              autoFocus
               value={step1.name}
               onChange={(e) => setStep1((prev) => ({ ...prev, name: e.target.value }))}
               className={inputClass}
@@ -271,6 +272,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               <input
                 id="org-name"
                 type="text"
+                autoComplete="organization"
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 disabled={isLoading}
@@ -289,6 +291,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               <input
                 id="invite-token"
                 type="text"
+                autoComplete="off"
                 value={inviteToken}
                 onChange={(e) => setInviteToken(e.target.value)}
                 disabled={isLoading}
