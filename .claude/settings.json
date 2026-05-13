@@ -43,7 +43,9 @@
       "Bash(gh repo view *)",
       "Bash(gh run list *)",
       "Bash(gh run view *)",
-      "Bash(gh workflow list *)"
+      "Bash(gh workflow list *)",
+      "awk '/^---$/{f++; next} f==2{print}' .github/ISSUE_TEMPLATE/bug_report.md",
+      "awk '/^---$/{f++; next} f==2{print}' .github/ISSUE_TEMPLATE/feature_request.md"
     ]
   },
   "hooks": {

@@ -66,10 +66,22 @@ gh project item-edit --id <item-id> --field-id <status-field-id> --project-id <p
 git worktree add worktrees/issue-<番号> -b issue-<番号>
 ```
 
-作成後、その worktree 内で husky をセットアップする。
+作成後、その worktree 内で husky をセットアップし、`.env.local` を生成する。
 
 ```bash
-cd worktrees/issue-<番号> && npm prepare
+cd worktrees/issue-<番号> && npm run prepare
+```
+
+`.env.local` はルートのファイルをコピーして作成する。
+
+```bash
+# .env.local が存在すればコピー、なければ .env.local.example からコピーしてユーザーに警告
+if [ -f ../../.env.local ]; then
+  cp ../../.env.local .env.local
+else
+  cp .env.local.example .env.local
+  echo "⚠️  .env.local が見つかりませんでした。.env.local.example をコピーしました。worktrees/issue-<番号>/.env.local の各値を埋めてください。"
+fi
 ```
 
 ---
