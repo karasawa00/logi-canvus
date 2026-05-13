@@ -1,8 +1,24 @@
-export default function SignupPage() {
+import { Suspense } from 'react'
+import { SignupForm } from './SignupForm'
+
+interface SignupPageProps {
+  searchParams: Promise<{ redirect?: string }>
+}
+
+function extractInviteToken(redirect: string | undefined): string {
+  if (!redirect) return ''
+  // Extract token from /invite/[token] path
+  const match = /^\/invite\/([^/?#]+)/.exec(redirect)
+  return match ? match[1] : ''
+}
+
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const { redirect } = await searchParams
+  const initialInviteToken = extractInviteToken(redirect)
+
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-2xl font-bold text-center">アカウント作成</h1>
-      <p className="text-center text-gray-500">サインアップ画面（実装予定）</p>
-    </div>
+    <Suspense fallback={<div className="rounded-lg bg-white p-8 shadow text-center text-gray-400">読み込み中...</div>}>
+      <SignupForm initialInviteToken={initialInviteToken} />
+    </Suspense>
   )
 }
