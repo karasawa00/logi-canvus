@@ -25,14 +25,14 @@ src/
               me/
                 delete.test.ts        ← DELETE /api/v1/organizations/:org-slug/members/me
     components/
-      AnnotationPin.test.ts           ← UI コンポーネントのテスト
+      ConfirmModal.test.tsx           ← 共有コンポーネントのテスト（必要な場合のみ）
 ```
 
 - テストファイルは `src/test/` 配下に置く
 - API テストは実際のエンドポイントと同じ階層でフォルダを切り、HTTPメソッドごとに `{method}.test.ts` として作成する
   - 例: `POST /api/v1/auth/signup` → `src/test/api/v1/auth/signup/post.test.ts`
   - 例: `GET /api/v1/organizations/:org-slug/members` → `src/test/api/v1/organizations/[org-slug]/members/get.test.ts`
-- UI コンポーネントのテストファイルは `<対象>.test.tsx`
+- 共有コンポーネントのテストファイルは `src/test/components/<対象>.test.tsx`
 
 ---
 
@@ -157,7 +157,8 @@ expect(json.error.code).toBe('CONFLICT')
 ## カバレッジ方針
 
 - API Route Handler は正常系・主要な異常系（バリデーション・認可・競合）を必ずカバーする
-- UI コンポーネントは主要なインタラクション（クリック・入力）をテストする
+- UI の動作検証は E2E（Playwright）を優先する
+- `src/components/` の共有コンポーネントに複雑なロジックがある場合のみ Vitest で単体テストを書く
 - 100% カバレッジは目標としない。価値のある境界値・エラーパスに絞る
 
 ---
