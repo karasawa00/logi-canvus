@@ -99,6 +99,8 @@ export default async function Page() {
 - `export default` はページ（`page.tsx`）のみ。その他は名前付きエクスポートを使う
 - コンポーネントのファイル名はパスカルケース（`AnnotationPin.tsx`）
 - ユーティリティ関数・hooks はコンポーネントファイルに混ぜず、`src/lib/` や `src/hooks/` に分ける
+- ルート固有コンポーネントは `page.tsx` と同階層に置く（co-location）
+- 複数ルートで共有するコンポーネントは `src/components/` に置く
 
 ---
 
