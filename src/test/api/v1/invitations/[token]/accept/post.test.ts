@@ -216,4 +216,43 @@ describe('POST /api/v1/invitations/:token/accept', () => {
     const json = await res.json()
     expect(json.error.code).toBe('NOT_FOUND')
   })
+
+  it('セッションの email が大文字混じり — 招待の lowercase email と一致するとみなし 200 を返す', async () => {
+    const { org, inviter } = await createOrgAndInviter()
+    const token = `case-insensitive-token-${Date.now()}`
+    const invitedEmail = `case-test-${Date.now()}@example.com`
+
+    await prisma.invitation.create({
+      data: {
+        orgId: org.id,
+        email: invitedEmail,
+        token,
+        createdBy: inviter.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    })
+
+    const member = await prisma.user.create({
+      data: {
+        name: 'Case Test Member',
+        email: invitedEmail,
+        passwordHash: 'dummy-hash',
+        orgId: null,
+      },
+    })
+
+    mockAuth.mockResolvedValue({
+      user: { id: member.id, email: invitedEmail.toUpperCase(), orgId: null },
+    })
+
+    const req = new Request(`http://localhost/api/v1/invitations/${token}/accept`, {
+      method: 'POST',
+    }) as NextRequest
+    const res = await POST(req, { params: Promise.resolve({ token }) })
+
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.data.organization.id).toBe(org.id)
+  })
 })

@@ -15,8 +15,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
     include: { organization: true },
   })
 
-  const isInvalid =
-    !invitation || invitation.usedAt !== null || invitation.expiresAt < new Date()
+  const isInvalid = !invitation || invitation.usedAt !== null || invitation.expiresAt < new Date()
 
   if (isInvalid) {
     return (
@@ -56,7 +55,5 @@ export default async function InvitePage({ params }: InvitePageProps) {
     )
   }
 
-  return (
-    <InviteActions token={token} organizationName={invitation.organization.name} />
-  )
+  return <InviteActions token={token} organizationName={invitation.organization.name} />
 }
