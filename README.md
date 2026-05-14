@@ -62,6 +62,7 @@ make dev
 | `make lint`       | ESLint 実行                 |
 | `make type-check` | TypeScript 型チェック       |
 | `make test`       | Vitest 実行                 |
+| `make test:e2e`   | Playwright E2E テスト実行   |
 | `make db:up`      | MySQL コンテナ起動          |
 | `make db:down`    | MySQL コンテナ停止          |
 | `make db:migrate` | Prisma マイグレーション実行 |
