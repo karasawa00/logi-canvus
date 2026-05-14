@@ -56,27 +56,23 @@ describe('POST /api/v1/invitations/:token/accept', () => {
       },
     })
 
-    // 招待先メールと同じ email のユーザー（別組織に未参加状態）を作成
-    const memberOrg = await prisma.organization.create({
-      data: { name: 'Member Org', slug: `member-org-${Date.now()}` },
-    })
     const member = await prisma.user.create({
       data: {
         name: 'New Member',
         email: invitedEmail,
         passwordHash: 'dummy-hash',
-        orgId: memberOrg.id,
+        orgId: null,
       },
     })
 
+    // orgId: null のユーザー（組織未所属）として accept する
     mockAuth.mockResolvedValue({
-      user: { id: member.id, email: invitedEmail },
+      user: { id: member.id, email: invitedEmail, orgId: null },
     })
 
-    const req = new Request(
-      `http://localhost/api/v1/invitations/${token}/accept`,
-      { method: 'POST' },
-    ) as NextRequest
+    const req = new Request(`http://localhost/api/v1/invitations/${token}/accept`, {
+      method: 'POST',
+    }) as NextRequest
     const res = await POST(req, { params: Promise.resolve({ token }) })
 
     expect(res.status).toBe(200)
@@ -92,13 +88,51 @@ describe('POST /api/v1/invitations/:token/accept', () => {
     expect(updatedInvitation?.usedAt).not.toBeNull()
   })
 
+  it('既に組織に所属しているユーザー — 409 CONFLICT を返す', async () => {
+    const { org, inviter } = await createOrgAndInviter()
+    const token = `conflict-token-${Date.now()}`
+    const invitedEmail = `conflict-member-${Date.now()}@example.com`
+
+    await prisma.invitation.create({
+      data: {
+        orgId: org.id,
+        email: invitedEmail,
+        token,
+        createdBy: inviter.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    })
+
+    const existingMember = await prisma.user.create({
+      data: {
+        name: 'Existing Member',
+        email: invitedEmail,
+        passwordHash: 'dummy-hash',
+        orgId: org.id,
+      },
+    })
+
+    mockAuth.mockResolvedValue({
+      user: { id: existingMember.id, email: invitedEmail, orgId: org.id },
+    })
+
+    const req = new Request(`http://localhost/api/v1/invitations/${token}/accept`, {
+      method: 'POST',
+    }) as NextRequest
+    const res = await POST(req, { params: Promise.resolve({ token }) })
+
+    expect(res.status).toBe(409)
+
+    const json = await res.json()
+    expect(json.error.code).toBe('CONFLICT')
+  })
+
   it('未認証 — 401 UNAUTHORIZED を返す', async () => {
     mockAuth.mockResolvedValue(null)
 
-    const req = new Request(
-      'http://localhost/api/v1/invitations/some-token/accept',
-      { method: 'POST' },
-    ) as NextRequest
+    const req = new Request('http://localhost/api/v1/invitations/some-token/accept', {
+      method: 'POST',
+    }) as NextRequest
     const res = await POST(req, { params: Promise.resolve({ token: 'some-token' }) })
 
     expect(res.status).toBe(401)
@@ -108,24 +142,13 @@ describe('POST /api/v1/invitations/:token/accept', () => {
   })
 
   it('存在しないトークン — 404 NOT_FOUND を返す', async () => {
-    const { org } = await createOrgAndInviter()
-    const user = await prisma.user.create({
-      data: {
-        name: 'User',
-        email: `user-notoken-${Date.now()}@example.com`,
-        passwordHash: 'dummy-hash',
-        orgId: org.id,
-      },
-    })
-
     mockAuth.mockResolvedValue({
-      user: { id: user.id, email: user.email },
+      user: { id: 'some-id', email: 'user@example.com', orgId: null },
     })
 
-    const req = new Request(
-      'http://localhost/api/v1/invitations/nonexistent-token/accept',
-      { method: 'POST' },
-    ) as NextRequest
+    const req = new Request('http://localhost/api/v1/invitations/nonexistent-token/accept', {
+      method: 'POST',
+    }) as NextRequest
     const res = await POST(req, { params: Promise.resolve({ token: 'nonexistent-token' }) })
 
     expect(res.status).toBe(404)
@@ -148,23 +171,13 @@ describe('POST /api/v1/invitations/:token/accept', () => {
       },
     })
 
-    const differentUser = await prisma.user.create({
-      data: {
-        name: 'Different User',
-        email: `different-${Date.now()}@example.com`,
-        passwordHash: 'dummy-hash',
-        orgId: org.id,
-      },
-    })
-
     mockAuth.mockResolvedValue({
-      user: { id: differentUser.id, email: differentUser.email },
+      user: { id: 'some-id', email: `different-${Date.now()}@example.com`, orgId: null },
     })
 
-    const req = new Request(
-      `http://localhost/api/v1/invitations/${token}/accept`,
-      { method: 'POST' },
-    ) as NextRequest
+    const req = new Request(`http://localhost/api/v1/invitations/${token}/accept`, {
+      method: 'POST',
+    }) as NextRequest
     const res = await POST(req, { params: Promise.resolve({ token }) })
 
     expect(res.status).toBe(403)
@@ -189,23 +202,13 @@ describe('POST /api/v1/invitations/:token/accept', () => {
       },
     })
 
-    const user = await prisma.user.create({
-      data: {
-        name: 'User',
-        email: invitedEmail,
-        passwordHash: 'dummy-hash',
-        orgId: org.id,
-      },
-    })
-
     mockAuth.mockResolvedValue({
-      user: { id: user.id, email: invitedEmail },
+      user: { id: 'some-id', email: invitedEmail, orgId: null },
     })
 
-    const req = new Request(
-      `http://localhost/api/v1/invitations/${token}/accept`,
-      { method: 'POST' },
-    ) as NextRequest
+    const req = new Request(`http://localhost/api/v1/invitations/${token}/accept`, {
+      method: 'POST',
+    }) as NextRequest
     const res = await POST(req, { params: Promise.resolve({ token }) })
 
     expect(res.status).toBe(404)

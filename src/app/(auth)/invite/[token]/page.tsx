@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { InviteActions } from './InviteActions'
+import { InviteAcceptButton } from './InviteAcceptButton'
 
 interface InvitePageProps {
   params: Promise<{ token: string }>
@@ -47,19 +47,13 @@ export default async function InvitePage({ params }: InvitePageProps) {
       )
     }
 
-    // Accept the invitation and redirect to the org dashboard.
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: { id: session.user.id },
-        data: { orgId: invitation.orgId },
-      })
-      await tx.invitation.update({
-        where: { id: invitation.id },
-        data: { usedAt: new Date() },
-      })
-    })
-
-    redirect(`/${invitation.organization.slug}`)
+    return (
+      <InviteAcceptButton
+        token={token}
+        organizationName={invitation.organization.name}
+        orgSlug={invitation.organization.slug}
+      />
+    )
   }
 
   return (

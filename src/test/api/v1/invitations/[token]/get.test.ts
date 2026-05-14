@@ -58,9 +58,7 @@ describe('GET /api/v1/invitations/:token', () => {
   })
 
   it('存在しないトークン — 404 NOT_FOUND を返す', async () => {
-    const req = new Request(
-      'http://localhost/api/v1/invitations/nonexistent-token',
-    ) as NextRequest
+    const req = new Request('http://localhost/api/v1/invitations/nonexistent-token') as NextRequest
     const res = await GET(req, { params: Promise.resolve({ token: 'nonexistent-token' }) })
 
     expect(res.status).toBe(404)
