@@ -49,10 +49,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.orgId = (user as { orgId?: string }).orgId
         token.orgSlug = (user as { orgSlug?: string }).orgSlug
+      }
+      if (trigger === 'update' && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          include: { organization: true },
+        })
+        if (dbUser) {
+          token.orgId = dbUser.orgId
+          token.orgSlug = dbUser.organization?.slug ?? null
+        }
       }
       return token
     },

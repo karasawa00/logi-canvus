@@ -18,7 +18,9 @@ test.describe('サインアップ画面 /signup', () => {
     await page.getByTestId('password-confirm-input').fill('password123')
     await page.getByTestId('next-button').click()
 
-    await expect(page.getByTestId('error-message')).toHaveText('有効なメールアドレスを入力してください。')
+    await expect(page.getByTestId('error-message')).toHaveText(
+      '有効なメールアドレスを入力してください。',
+    )
   })
 
   test('Step1: パスワード8文字未満で「次へ」— エラーが表示される', async ({ page }) => {
@@ -28,7 +30,9 @@ test.describe('サインアップ画面 /signup', () => {
     await page.getByTestId('password-confirm-input').fill('short')
     await page.getByTestId('next-button').click()
 
-    await expect(page.getByTestId('error-message')).toHaveText('パスワードは8文字以上で入力してください。')
+    await expect(page.getByTestId('error-message')).toHaveText(
+      'パスワードは8文字以上で入力してください。',
+    )
   })
 
   test('Step1: パスワード不一致で「次へ」— エラーが表示される', async ({ page }) => {
