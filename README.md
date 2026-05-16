@@ -68,6 +68,36 @@ make dev
 | `make db:migrate` | Prisma マイグレーション実行 |
 | `make db:studio`  | Prisma Studio 起動          |
 
+## MCP サーバー
+
+Claude Code でこのプロジェクトを開く際、`.mcp.json` に定義された以下の MCP サーバーが利用可能です。
+
+| サーバー | 用途 |
+| -------- | ---- |
+| context7 | ライブラリの最新ドキュメント取得 |
+| playwright | ブラウザ操作・E2E デバッグ |
+| serena | コードシンボル検索・リファクタリング支援 |
+| stitch | UI デザイン生成・デザインシステム管理 |
+
+### Stitch MCP の注意事項
+
+Stitch MCP は `@_davideast/stitch-mcp` プロキシ経由で gcloud の OAuth 認証を使います。API キーは Stitch API で使用できません。
+
+**必須の設定手順：**
+
+1. [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) をインストールする
+2. アプリケーションデフォルト認証を実行する
+
+```bash
+gcloud auth application-default login
+```
+
+3. Claude Code を起動する（`.mcp.json` の設定は変更不要）
+
+> `npx @_davideast/stitch-mcp proxy` が初回起動時に自動インストールされます。
+
+---
+
 ## 設計ドキュメント
 
 | ドキュメント                                 | 内容             |
