@@ -48,7 +48,7 @@ export function InviteAcceptButton({ token, organizationName, orgSlug }: InviteA
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600"
+          className="rounded bg-red-50 px-3 py-2 text-sm text-red-600"
           data-testid="error-message"
         >
           {error}

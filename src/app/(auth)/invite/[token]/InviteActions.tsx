@@ -20,7 +20,7 @@ export function InviteActions({ token, organizationName }: InviteActionsProps) {
       <div className="flex flex-col gap-3">
         <Link
           href={`/signup?redirect=${encodeURIComponent(invitePath)}`}
-          className="block w-full cursor-pointer rounded bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          className="block w-full rounded bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
           data-testid="signup-button"
         >
           アカウント作成して参加
@@ -28,7 +28,7 @@ export function InviteActions({ token, organizationName }: InviteActionsProps) {
 
         <Link
           href={`/login?redirect=${encodeURIComponent(invitePath)}`}
-          className="block w-full cursor-pointer rounded border border-gray-300 px-4 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          className="block w-full rounded border border-gray-300 px-4 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
           data-testid="login-button"
         >
           ログインして参加
