@@ -86,7 +86,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50 disabled:text-gray-400"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:opacity-50 disabled:text-gray-400"
             placeholder="you@example.com"
             data-testid="email-input"
           />
@@ -103,7 +103,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50 disabled:text-gray-400"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:opacity-50 disabled:text-gray-400"
             placeholder="••••••••"
             data-testid="password-input"
           />
