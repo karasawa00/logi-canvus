@@ -10,12 +10,7 @@ export function AppLogo() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            d="M4 6h12M4 10h8M4 14h10"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
+          <path d="M4 6h12M4 10h8M4 14h10" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
       <p className="text-sm font-medium tracking-wide text-gray-600">logi-canvus</p>
