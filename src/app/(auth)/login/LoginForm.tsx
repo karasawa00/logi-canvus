@@ -50,12 +50,33 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
   }
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-center text-2xl font-bold">logi-canvus</h1>
+    <div className="rounded-lg bg-white px-8 py-10 shadow-sm">
+      <div className="mb-6 flex flex-col items-center gap-2">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-900">
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 6h12M4 10h8M4 14h10"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <p className="text-sm font-medium tracking-wide text-gray-600">logi-canvus</p>
+      </div>
+
+      <h1 className="mb-8 text-center text-2xl font-bold tracking-tight text-gray-900">ログイン</h1>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="mb-4">
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+        <div className="mb-6">
+          <label htmlFor="email" className="mb-1 block text-xs font-medium text-gray-500">
             メールアドレス
           </label>
           <input
@@ -65,14 +86,14 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:opacity-50 disabled:text-gray-400"
             placeholder="you@example.com"
             data-testid="email-input"
           />
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+        <div className="mb-8">
+          <label htmlFor="password" className="mb-1 block text-xs font-medium text-gray-500">
             パスワード
           </label>
           <input
@@ -82,7 +103,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:opacity-50 disabled:text-gray-400"
             placeholder="••••••••"
             data-testid="password-input"
           />
@@ -91,7 +112,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         {error && (
           <p
             role="alert"
-            className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+            className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600"
             data-testid="error-message"
           >
             {error}
@@ -101,7 +122,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
           data-testid="submit-button"
         >
           {isLoading ? 'ログイン中...' : 'ログイン'}
