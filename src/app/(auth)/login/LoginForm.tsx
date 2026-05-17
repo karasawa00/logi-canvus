@@ -54,6 +54,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
       <div className="mb-6 flex flex-col items-center gap-2">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-900">
           <svg
+            aria-hidden="true"
             width="20"
             height="20"
             viewBox="0 0 20 20"
@@ -68,8 +69,10 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             />
           </svg>
         </div>
-        <h1 className="text-center text-2xl font-bold">logi-canvus</h1>
+        <p className="text-sm font-medium tracking-wide text-gray-600">logi-canvus</p>
       </div>
+
+      <h1 className="mb-8 text-center text-2xl font-bold tracking-tight text-gray-900">ログイン</h1>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="mb-6">
@@ -83,7 +86,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:text-gray-400"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50 disabled:text-gray-400"
             placeholder="you@example.com"
             data-testid="email-input"
           />
@@ -100,7 +103,7 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
-            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:text-gray-400"
+            className="w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50 disabled:text-gray-400"
             placeholder="••••••••"
             data-testid="password-input"
           />
