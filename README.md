@@ -98,7 +98,9 @@ gcloud auth application-default login
 gcloud config set project <your-gcp-project-id>
 ```
 
-4. Claude Code を起動する（`.mcp.json` の設定は変更不要）
+4. GCP コンソールで [Stitch API](https://console.cloud.google.com/apis/library/stitch.googleapis.com) を有効にする
+
+5. Claude Code を起動する（`.mcp.json` の設定は変更不要）
 
 > `npx @_davideast/stitch-mcp proxy` が初回起動時に自動インストールされます。
 
