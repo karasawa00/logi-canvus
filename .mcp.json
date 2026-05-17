@@ -31,11 +31,12 @@
     },
     "stitch": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["@_davideast/stitch-mcp", "proxy"],
-      "env": {
-        "STITCH_USE_SYSTEM_GCLOUD": "1"
-      }
+      "command": "sh",
+      "args": [
+        "-c",
+        "export PATH=\"$HOME/google-cloud-sdk/bin:/usr/local/bin:/opt/homebrew/bin:$PATH\"; GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project) STITCH_ACCESS_TOKEN=$(gcloud auth application-default print-access-token) npx @_davideast/stitch-mcp proxy"
+      ],
+      "env": {}
     }
   }
 }

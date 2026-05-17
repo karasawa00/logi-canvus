@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { signup } from '@/lib/api/auth'
+import { AppLogo } from '@/components/ui/AppLogo'
 
 interface Step1Data {
   name: string
@@ -138,14 +139,18 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
   }
 
   const inputClass =
-    'w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500'
-  const labelClass = 'mb-1 block text-sm font-medium text-gray-700'
-  const fieldClass = 'mb-4'
+    'w-full border-b border-gray-300 bg-transparent py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none disabled:opacity-50 disabled:text-gray-400'
+  const labelClass = 'mb-1 block text-xs font-medium text-gray-500'
+  const fieldClass = 'mb-5'
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-1 text-center text-2xl font-bold">アカウント作成</h1>
-      <p className="mb-6 text-center text-sm text-gray-400">ステップ {step} / 2</p>
+    <div className="rounded-lg bg-white px-8 py-10 shadow-sm">
+      <AppLogo />
+
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">アカウント作成</h1>
+        <p className="mt-1 text-sm text-gray-400">ステップ {step} / 2</p>
+      </div>
 
       {step === 1 && (
         <form onSubmit={handleStep1Submit} noValidate data-testid="signup-step1-form">
@@ -160,6 +165,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoFocus
               value={step1.name}
               onChange={(e) => setStep1((prev) => ({ ...prev, name: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="田中太郎"
               data-testid="name-input"
@@ -176,6 +182,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="email"
               value={step1.email}
               onChange={(e) => setStep1((prev) => ({ ...prev, email: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="you@example.com"
               data-testid="email-input"
@@ -192,13 +199,14 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="new-password"
               value={step1.password}
               onChange={(e) => setStep1((prev) => ({ ...prev, password: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="••••••••（8文字以上）"
               data-testid="password-input"
             />
           </div>
 
-          <div className="mb-6">
+          <div className="mb-8">
             <label htmlFor="password-confirm" className={labelClass}>
               パスワード（確認）
             </label>
@@ -208,6 +216,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="new-password"
               value={step1.passwordConfirm}
               onChange={(e) => setStep1((prev) => ({ ...prev, passwordConfirm: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="••••••••"
               data-testid="password-confirm-input"
@@ -217,7 +226,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
           {error && (
             <p
               role="alert"
-              className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+              className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600"
               data-testid="error-message"
             >
               {error}
@@ -226,7 +235,8 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
 
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={isLoading}
+            className="flex w-full items-center justify-center rounded bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             data-testid="next-button"
           >
             次へ
@@ -236,28 +246,28 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
 
       {step === 2 && (
         <form onSubmit={handleStep2Submit} noValidate data-testid="signup-step2-form">
-          <div className="mb-4 space-y-3">
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 p-3 hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+          <div className="mb-5 space-y-3">
+            <label className="flex cursor-pointer items-start gap-3 rounded border border-gray-200 p-3 hover:border-gray-400 has-[:checked]:border-gray-900 has-[:checked]:bg-gray-50">
               <input
                 type="radio"
                 name="org-action"
                 value="create"
                 checked={orgAction === 'create'}
                 onChange={() => setOrgAction('create')}
-                className="mt-0.5"
+                className="mt-0.5 accent-gray-900"
                 data-testid="org-create-radio"
               />
               <span className="text-sm font-medium text-gray-800">新しい組織を作成する</span>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 p-3 hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+            <label className="flex cursor-pointer items-start gap-3 rounded border border-gray-200 p-3 hover:border-gray-400 has-[:checked]:border-gray-900 has-[:checked]:bg-gray-50">
               <input
                 type="radio"
                 name="org-action"
                 value="join"
                 checked={orgAction === 'join'}
                 onChange={() => setOrgAction('join')}
-                className="mt-0.5"
+                className="mt-0.5 accent-gray-900"
                 data-testid="org-join-radio"
               />
               <span className="text-sm font-medium text-gray-800">既存の組織に参加する</span>
@@ -265,7 +275,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
           </div>
 
           {orgAction === 'create' && (
-            <div className="mb-4">
+            <div className="mb-5">
               <label htmlFor="org-name" className={labelClass}>
                 組織名
               </label>
@@ -284,7 +294,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
           )}
 
           {orgAction === 'join' && (
-            <div className="mb-4">
+            <div className="mb-5">
               <label htmlFor="invite-token" className={labelClass}>
                 招待コード
               </label>
@@ -305,7 +315,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
           {error && (
             <p
               role="alert"
-              className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+              className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-600"
               data-testid="error-message"
             >
               {error}
@@ -316,7 +326,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center rounded bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               data-testid="submit-button"
             >
               {isLoading ? '登録中...' : '登録する'}
@@ -329,7 +339,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
                 setError(null)
                 setStep(1)
               }}
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center rounded border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               data-testid="back-button"
             >
               戻る
