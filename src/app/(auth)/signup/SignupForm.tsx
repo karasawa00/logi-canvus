@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { signup } from '@/lib/api/auth'
+import { AppLogo } from '@/components/ui/AppLogo'
 
 interface Step1Data {
   name: string
@@ -144,26 +145,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
 
   return (
     <div className="rounded-lg bg-white px-8 py-10 shadow-sm">
-      <div className="mb-6 flex flex-col items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-900">
-          <svg
-            aria-hidden="true"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M4 6h12M4 10h8M4 14h10"
-              stroke="white"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </div>
-        <p className="text-sm font-medium tracking-wide text-gray-600">logi-canvus</p>
-      </div>
+      <AppLogo />
 
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">アカウント作成</h1>
@@ -183,6 +165,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoFocus
               value={step1.name}
               onChange={(e) => setStep1((prev) => ({ ...prev, name: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="田中太郎"
               data-testid="name-input"
@@ -199,6 +182,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="email"
               value={step1.email}
               onChange={(e) => setStep1((prev) => ({ ...prev, email: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="you@example.com"
               data-testid="email-input"
@@ -215,6 +199,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="new-password"
               value={step1.password}
               onChange={(e) => setStep1((prev) => ({ ...prev, password: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="••••••••（8文字以上）"
               data-testid="password-input"
@@ -231,6 +216,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               autoComplete="new-password"
               value={step1.passwordConfirm}
               onChange={(e) => setStep1((prev) => ({ ...prev, passwordConfirm: e.target.value }))}
+              disabled={isLoading}
               className={inputClass}
               placeholder="••••••••"
               data-testid="password-confirm-input"
@@ -249,7 +235,8 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
 
           <button
             type="submit"
-            className="flex w-full items-center justify-center rounded bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 cursor-pointer"
+            disabled={isLoading}
+            className="flex w-full items-center justify-center rounded bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             data-testid="next-button"
           >
             次へ
