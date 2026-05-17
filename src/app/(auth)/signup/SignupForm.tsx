@@ -230,9 +230,7 @@ export function SignupForm({ initialInviteToken }: SignupFormProps) {
               type="password"
               autoComplete="new-password"
               value={step1.passwordConfirm}
-              onChange={(e) =>
-                setStep1((prev) => ({ ...prev, passwordConfirm: e.target.value }))
-              }
+              onChange={(e) => setStep1((prev) => ({ ...prev, passwordConfirm: e.target.value }))}
               className={inputClass}
               placeholder="••••••••"
               data-testid="password-confirm-input"
